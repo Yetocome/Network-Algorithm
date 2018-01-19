@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: UTF-8 -*-
-from random import uniform
+import random
 
 
 def helper_find_smallest_pair(l, n):
@@ -22,10 +22,10 @@ def helper_find_smallest_pair(l, n):
 
 def BRC_generation(N):
     coordinates = []
-    coordinates.append((0, uniform(0, 1)))  # n = 0
+    coordinates.append((0, random.uniform(0, 1)))  # n = 0
     a = coordinates[0][1]
     b = coordinates[0][1] + 1
-    t = uniform(a+1/3, b-1/3)
+    t = random.uniform(a+1/3, b-1/3)
     if t > 1:
         t -= 1
     coordinates.append((1, t))  # n = 1
@@ -46,7 +46,7 @@ def BRC_generation(N):
         else:
             a = xr2
             b = xr1+1
-        t = uniform(a+1/3/n, b-1/3/n)
+        t = random.uniform(a+1/3/n, b-1/3/n)
         if t > 1:
             t -= 1
         coordinates.append((n+1, t))
@@ -85,18 +85,26 @@ class S2Node(object):
         self.servers = server_IDs  # useless in this version
         self.coordinates = []
         self.neighbours = []
-        self.repeated_neighbours = []
+        # self.free_neighbours = []
+        # self.repeated_neighbours = []  # log to avoid repeated connection
 
     def join_a_new_virtual_ring(self, coordinate):
         self.coordinates.append(coordinate)
 
     def add_neighbour(self, new_neighbour):
-        if new_neighbour in self.repeated_neighbours:
-            pass
-        elif new_neighbour in self.neighbours:
-            self.repeated_neighbours.append(new_neighbour)
-        else:
+        if new_neighbour not in self.neighbours:
             self.neighbours.append(new_neighbour)
+            return True
+        return False
+        # if new_neighbour in self.repeated_neighbours:
+        #     pass
+        # elif new_neighbour in self.neighbours:
+        #     self.repeated_neighbours.append(new_neighbour)
+        # else:
+        #     self.neighbours.append(new_neighbour)
+
+    def get_free_port_number(self):
+        return 2*self.coordinates.__len__() - self.neighbours.__len__()
 
     def __update_routing_tables(self):
         pass
@@ -146,7 +154,7 @@ class S2Node(object):
         print('#', self.ID, 'S2 node info:')
         print('    coordinates:', self.coordinates)
         print('    neighour:', [ni.ID for ni in self.neighbours])
-        print('    repeated_neighbours:', [ni.ID for ni in self.repeated_neighbours])
+        print('    free_port_number:', self.get_free_port_number())
 
 
 class S2Topo(object):
@@ -185,14 +193,46 @@ class S2Topo(object):
                 self.topo[rv_id].add_neighbour(self.topo[last_rv_id])
                 last_v_id = v_id  # update for next
                 last_rv_id = rv_id
-
-    def __generate_coordinates(self, N):
-        pass
+        if self.__eliminate_free_ports():
+            print('Perfect Topology!')
 
     def __eliminate_free_ports(self):
-        pass
+        """Eliminating the free ports of switches by connecting them randomly
+        due to the lack of a simple rollback operation, this function could not
+        rule out the possibility that there is a switch with even free ports
+        after port elimination
 
-    def sales(self, number):
+        returns: whether the elimination is perfectly executed
+        """
+        port_pool = []
+        for node in self.topo:
+            for i in range(node.get_free_port_number()):
+                port_pool.append(node)
+        print('Before port_pool:', [node.ID for node in port_pool])
+        if port_pool == []:  # Can you believe? There is no free port
+            print('Can you believe? There is no free port')
+            return True
+        while port_pool.__len__() > 3:  # 4 or more free ports
+            i1, i2 = random.sample(range(port_pool.__len__()), 2)
+            port_a, port_b = port_pool[i1], port_pool[i2]  # avoid index error
+            if port_a is not port_b:
+                re = port_a.add_neighbour(port_b)
+                if re:
+                    # not previously connected
+                    port_b.add_neighbour(port_a)
+                    i1 = port_pool.index(port_a)
+                    del port_pool[i1]
+                    i2 = port_pool.index(port_b)
+                    del port_pool[i2]
+        print('After port_pool:', [node.ID for node in port_pool])
+        if port_pool[0] is not port_pool[1]:
+            if port_pool[0].add_neighbour(port_pool[1]):
+                port_pool[0].add_neighbour(port_pool[1])
+                del port_pool
+                return True
+        return False
+
+    def scales(self, number):
         pass
 
     def print_info(self):
@@ -202,4 +242,5 @@ class S2Topo(object):
 
 if __name__ == '__main__':
     # print(BRC_generation(20))
-    S2Topo(100, 4, 4).print_info()
+    topo = S2Topo(100, 4, 4)
+    # topo.print_info()
