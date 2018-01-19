@@ -121,12 +121,12 @@ class S2Node(object):
     def cal_MCD(self, dst_coordinates):
         return self.__cal_CD(dst_coordinates).sort[0]
 
-    def forwarding(self, pkt):
+    def forward(self, pkt, mp_enabled=False):
         """Forward the packet delivered to this switch
 
         Returns: the path length of a sucessful delivered paket
         """
-        if pkt.src is self:  # first hop
+        if mp_enabled and pkt.src is self:  # first hop
             V = []
             for neighbour in self.neighbours:
                 if neighbour.cal_MCD(pkt.dst_coordinates) < \
@@ -170,8 +170,6 @@ class S2Topo(object):
             L: the number of virtual rings
             d: the number of actually using rings
         """
-        self.N = N
-        self.L = L
         self.d = d
         self.topo = [S2Node() for i in range(N)]  # create N S2 nodes
         for i in range(L):
@@ -200,7 +198,7 @@ class S2Topo(object):
         """Eliminating the free ports of switches by connecting them randomly
         due to the lack of a simple rollback operation, this function could not
         rule out the possibility that there is a switch with even free ports
-        after port elimination
+        after port elimination.
 
         returns: whether the elimination is perfectly executed
         """
@@ -232,6 +230,10 @@ class S2Topo(object):
                 return True
         return False
 
+    def test_connectivity(self, ID_a, ID_b):
+        src, dst = self.topo[ID_a], self.topo[ID_b]
+        return src.forward(FakePacket(src, dst))
+
     def scales(self, number):
         pass
 
@@ -244,3 +246,10 @@ if __name__ == '__main__':
     # print(BRC_generation(20))
     topo = S2Topo(100, 4, 4)
     # topo.print_info()
+
+
+# To-DO
+# 1. Reduce the routing path length: S2 will store the coordinates of 2-hop
+#    neighbours
+# 2. First hop with hash fucntion
+# 3. Add support to choose only d spcace
