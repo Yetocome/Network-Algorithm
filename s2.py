@@ -86,7 +86,7 @@ class S2Node(object):
         self.coordinates = []
         self.neighbours = []
         # self.further_neighbour_groups = []
-        self.stored_neighbors = [self.neighbours]  # K-ary tree
+        self.stored_neighbors = [[]]  # K-ary tree
         self.stored_hops = stored_hops
         # self.free_neighbours = []
         # self.repeated_neighbours = []  # log to avoid repeated connection
@@ -114,8 +114,8 @@ class S2Node(object):
         hops = self.stored_hops
         while hops > 1:
             self.stored_neighbors.append([])  # add a new level
-            for neighour in self.stored_neighbors[-2]:
-                self.stored_neighbors[-1] += neighour.neighour  # repeatition
+            for neighbour in self.stored_neighbors[-2]:
+                self.stored_neighbors[-1] += neighbour.neighbours  # repeatition
             hops -= 1
 
     def __cal_CD(self, dst_coordinates):
@@ -128,7 +128,9 @@ class S2Node(object):
         pass
 
     def cal_MCD(self, dst_coordinates):
-        return self.__cal_CD(dst_coordinates).sort[0]
+        CD = self.__cal_CD(dst_coordinates)
+        CD.sort()
+        return CD[0]
 
     def forward(self, pkt, mp_enabled=False):
         """Forward the packet delivered to this switch
@@ -145,25 +147,28 @@ class S2Node(object):
         pkt.path_dis += 1
         if pkt.path_dis > 255:
             raise Exception('Possible loop routing')
-        # recursive fowarding, this is the end condition
+        # recursive fowarding, this is the exit condition
         if pkt.dst_coordinates == self.coordinates:
             return pkt.path_dis  # Successfully find the destination
         # assure that the forwarding is loop-free, otherwise it won't end
         else:
             least_mcds = []
-            for level, neighbours in self.stored_neighbors.enumerates():
+            for level, neighbours in enumerate(self.stored_neighbors):
                 mcds = []
-                for index, neighbour in neighbours.enumerates():
-                    mcds.append((neighbour.cal_MCD(pkt.coordinates), index))
+                for index, neighbour in enumerate(neighbours):
+                    mcds.append((neighbour.cal_MCD(pkt.dst_coordinates), index))
                     # though executed by neighour node, we assume that the
                     # calculation happens in local; this will save the memory
                     # needed by simulation
+                print('Self Neighbour is', [n.ID for n in self.neighbours])
+                print('Neighbour is', [n.ID for n in neighbours])
+                print('Level:', level, 'MCDS:', mcds)
                 mcds.sort(key=lambda mcd: mcd[0])  # sort by mcd results
                 least_mcds.append((mcds[0][0], mcds[0][1], level))
             least_mcds.sort(key=lambda mcd: mcd[0])
             scale = self.neighbours.__len__()
             next_switch_index = int(least_mcds[0][1]/scale**least_mcds[0][2])
-            return self.neighbours[next_switch_index].forwarding(pkt)
+            return self.neighbours[next_switch_index].forward(pkt)
 
     def print_info(self):
         print('#', self.ID, 'S2 node info:')
@@ -193,12 +198,6 @@ class S2Topo(object):
             reversed_ring.reverse()
             last_v_id = ring[-1][0]
             last_rv_id = reversed_ring[-1][0]
-            # for ring_id, v_node_id, v_node_coord in ring.enumerate():
-            #     left_node = self.topo[ring[(N+ring_id-1)%N]]
-            #     self.topo[v_node_id].join_a_new_virtual_ring(
-            #         v_node_coord,
-            #         [,]
-            #     )
             for (v_id, v_coord), (rv_id, rv_coord) in zip(ring, reversed_ring):
                 # print("last_v_id", last_v_id, "last_rv_id", last_rv_id)
                 self.topo[v_id].join_a_new_virtual_ring(v_coord)
@@ -208,8 +207,10 @@ class S2Topo(object):
                 last_rv_id = rv_id
         if self.__eliminate_free_ports():
             print('Perfect Topology!')
+        else:
+            print('Two free ports exists')
         for node in self.topo:
-            node.update_routing_tables(2)
+            node.update_routing_tables()
 
     def __eliminate_free_ports(self):
         """Eliminating the free ports of switches by connecting them randomly
@@ -242,12 +243,12 @@ class S2Topo(object):
         print('After port_pool:', [node.ID for node in port_pool])
         if port_pool[0] is not port_pool[1]:
             if port_pool[0].add_neighbour(port_pool[1]):
-                port_pool[0].add_neighbour(port_pool[1])
+                port_pool[1].add_neighbour(port_pool[0])
                 del port_pool
                 return True
         return False
 
-    def test_connectivity(self, ID_a, ID_b):
+    def cal_path(self, ID_a, ID_b):
         src, dst = self.topo[ID_a], self.topo[ID_b]
         return src.forward(FakePacket(src, dst))
 
@@ -261,11 +262,13 @@ class S2Topo(object):
 
 if __name__ == '__main__':
     # print(BRC_generation(20))
-    topo = S2Topo(100, 4, 4, 2)
+    topo = S2Topo(20, 4, 4, 1)
+    a, b = random.sample(range(10), 2)
+    print('The path length of this packet is', topo.cal_path(a, b))
     # topo.print_info()
 
 
-# To-DO
-# 1. Enable next-hop storation
-# 2. First hop with hash fucntion
-# 3. Add support to choose only d spcace
+# TO-DO
+# [V] Enable next-hop storation
+# [] First hop with hash fucntion
+# [] Add support to choose only d spcace
