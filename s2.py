@@ -1,6 +1,7 @@
 #!/usr/bin/python
 # -*- coding: UTF-8 -*-
 import random
+NODE_NUM = 250
 
 
 def helper_find_smallest_pair(l, n):
@@ -160,9 +161,9 @@ class S2Node(object):
                     # though executed by neighour node, we assume that the
                     # calculation happens in local; this will save the memory
                     # needed by simulation
-                print('Self Neighbour is', [n.ID for n in self.neighbours])
-                print('Neighbour is', [n.ID for n in neighbours])
-                print('Level:', level, 'MCDS:', mcds)
+                # print('Self Neighbour is', [n.ID for n in self.neighbours])
+                # print('Neighbour is', [n.ID for n in neighbours])
+                # print('Level:', level, 'MCDS:', mcds)
                 mcds.sort(key=lambda mcd: mcd[0])  # sort by mcd results
                 least_mcds.append((mcds[0][0], mcds[0][1], level))
             least_mcds.sort(key=lambda mcd: mcd[0])
@@ -189,9 +190,10 @@ class S2Topo(object):
             N: the number of switches
             L: the number of virtual rings
             d: the number of actually using rings
+            hops: how many hops' info will a node store
         """
         self.d = d
-        self.topo = [S2Node(hops) for i in range(N)]  # create N S2 nodes
+        self.nodes = [S2Node(hops) for i in range(N)]  # create N S2 nodes
         for i in range(L):
             reversed_ring = BRC_generation(N)
             ring = reversed_ring.copy()
@@ -200,16 +202,16 @@ class S2Topo(object):
             last_rv_id = reversed_ring[-1][0]
             for (v_id, v_coord), (rv_id, rv_coord) in zip(ring, reversed_ring):
                 # print("last_v_id", last_v_id, "last_rv_id", last_rv_id)
-                self.topo[v_id].join_a_new_virtual_ring(v_coord)
-                self.topo[v_id].add_neighbour(self.topo[last_v_id])
-                self.topo[rv_id].add_neighbour(self.topo[last_rv_id])
+                self.nodes[v_id].join_a_new_virtual_ring(v_coord)
+                self.nodes[v_id].add_neighbour(self.nodes[last_v_id])
+                self.nodes[rv_id].add_neighbour(self.nodes[last_rv_id])
                 last_v_id = v_id  # update for next
                 last_rv_id = rv_id
         if self.__eliminate_free_ports():
             print('Perfect Topology!')
         else:
             print('Two free ports exists')
-        for node in self.topo:
+        for node in self.nodes:
             node.update_routing_tables()
 
     def __eliminate_free_ports(self):
@@ -221,7 +223,7 @@ class S2Topo(object):
         returns: whether the elimination is perfectly executed
         """
         port_pool = []
-        for node in self.topo:
+        for node in self.nodes:
             for i in range(node.get_free_port_number()):
                 port_pool.append(node)
         print('Before port_pool:', [node.ID for node in port_pool])
@@ -249,26 +251,33 @@ class S2Topo(object):
         return False
 
     def cal_path(self, ID_a, ID_b):
-        src, dst = self.topo[ID_a], self.topo[ID_b]
+        src, dst = self.nodes[ID_a], self.nodes[ID_b]
         return src.forward(FakePacket(src, dst))
 
     def scales(self, number):
         pass
 
     def print_info(self):
-        for node in self.topo:
+        for node in self.nodes:
             node.print_info()
 
 
 if __name__ == '__main__':
     # print(BRC_generation(20))
-    topo = S2Topo(20, 4, 4, 1)
-    a, b = random.sample(range(10), 2)
-    print('The path length of this packet is', topo.cal_path(a, b))
+    topo = S2Topo(NODE_NUM, 5, 5, 2)
+    # a, b = random.sample(range(10), 2)
+    # print('The path length of this packet is', topo.cal_path(a, b))
     # topo.print_info()
+    sum = 0
+    connections = NODE_NUM*(NODE_NUM-1)/2
+    for index_a in range(NODE_NUM):
+        for index_b in range(index_a+1, NODE_NUM):
+            sum += topo.cal_path(index_a, index_b)
+    print('The average routing path length is', sum/connections)
 
 
 # TO-DO
 # [V] Enable next-hop storation
 # [] First hop with hash fucntion
 # [] Add support to choose only d spcace
+# [] Plot the simulation results
