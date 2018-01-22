@@ -11,13 +11,15 @@ Chord protocol is one of the most famous protocols in P2P networking.
 Routing Path Length
 
 * Experiment 1 - fixed condition
+
+![](https://github.com/Yetocome/Networking-Algorithm/blob/master/Figure_5.png)
 * Experiment 2 - when node number scales
+
+![](https://github.com/Yetocome/Networking-Algorithm/blob/master/Figure_6.png)
 
 
 Finger Tables:
 
-* Experiment 1 - fixed condition
-* Experiment 2 - when file scales
 
 
 ## Space Shuffle<sup>[[2]](http://ieeexplore.ieee.org/document/7416229/)</sup>
@@ -40,10 +42,13 @@ Routing Path Length:
 ![](https://github.com/Yetocome/Networking-Algorithm/blob/master/Figure_4.png)
 * Experiment 5 - when used spaces scales
 
+
 Routing Tables:
 
 
 ## A Quick Comparison between Chord and S2
+
+
 
 ### _Reference_
 [1] Stoica, I., Morris, R., Karger, D., Kaashoek, M. F., & Balakrishnan, H. (2001). Chord. In Proceedings of the 2001 conference on Applications, technologies, architectures, and protocols for computer communications - SIGCOMM ’01. ACM Press. https://doi.org/10.1145/383059.383071

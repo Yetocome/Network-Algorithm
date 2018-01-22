@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: UTF-8 -*-
 import random
-M = 16
+M = 160
 MAX_SIZE = 2**M
 
 
@@ -158,7 +158,7 @@ class ChordNode(object):
     def add_Source(self, Content, Name='Untitled'):
         """模拟使用，依据内容和名字表示某个节点保存了一个新的文件
         """
-        KID = hash(Content)
+        KID = my_hash(Content)
         FInfo = FileInfo(KID, Name)
         Info_saved_Node = self.find_successor(KID)
         if Info_saved_Node.preSource.get(KID) is None:
@@ -189,7 +189,7 @@ class ChordNode(object):
         self.fix_FingerTable()
 
     def find_file(self, Content):
-        KID = hash(Content)
+        KID = my_hash(Content)
         self.find_successor(KID)
         return self.last_request_path
 
@@ -243,7 +243,7 @@ def rand_string(size=M):
     seed = "1234567890abcdefghijklmnopqrstuvwxyz\
             ABCDEFGHIJKLMNOPQRSTUVWXYZ!@#$%^&*()_+=-"
     salt = ''
-    for i in range(M):
+    for i in range(size):
         salt += random.choice(seed)
     return salt
 
