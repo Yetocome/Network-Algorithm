@@ -70,7 +70,7 @@ class FakePacket(object):
 
 
 class S2Node(object):
-    """The Shuffle Space Node Class
+    """The Space Shuffle Node Class
     """
     counter = 0
 
@@ -179,7 +179,7 @@ class S2Node(object):
 
 
 class S2Topo(object):
-    """The Shuffle Space Topology Class
+    """The Space Shuffle Topology Class
 
     "tell" nodes where they are and who their neighbours are
     """

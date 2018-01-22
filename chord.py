@@ -188,6 +188,11 @@ class ChordNode(object):
                 self.successor.predecessor = self
         self.fix_FingerTable()
 
+    def find_file(self, Content):
+        KID = hash(Content)
+        self.find_successor(KID)
+        return self.last_request_path
+
     def print_info(self, table=False):
         """打印节点的某些信息，测试用"""
         print('You reached here by', self.last_request_path, 'hops')

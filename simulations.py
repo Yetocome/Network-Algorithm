@@ -2,20 +2,46 @@
 # -*- coding: UTF-8 -*-
 
 from s2 import S2Topo
-from chord import ChordNode, stabilize_all
+from chord import ChordNode, stabilize_all, rand_string
 import matplotlib.pyplot as plt
 import math
+import random
 
 
-def helper_find_percentile(data, percentile):
-    pass
+class SimData(object):
+    """This Class is designed to simplify the helper funciton of each simulations
+    Due to the limited time, there is no realization now
+    """
+    def __init__(self):
+        self.avg = 0
+        sekf.data = {}
+
+def helper_find_percentile(data, size, percentile):
+    base = 0
+    count = 0
+    index = 1
+    limit = math.ceil(size*percentile/100)
+    while base < limit:
+        try:
+            count = data[index]
+            base += count
+            index += 1
+        except KeyError:
+            index += 1
+    return index-1
 
 
-def s2_sim_tool(num, ports, used_ports, neighour_level):
+def helper_s2_sim(num, ports, used_ports, neighour_level):
+    """This function will simulate a shuffle space case with the given conditions
+    The raw data is also stored in a dict because it may not be continuous
+    Returns:
+        The dict of the results
+    """
     data = {'avg': None, 'raw': {}, '90p': None, '10p': None, 'largest': 0}
     topo = S2Topo(num, ports, used_ports, neighour_level)
     data['connections'] = num*(num-1)/2
     sum = 0
+
     for index_a in range(num):
         for index_b in range(index_a+1, num):
             length = topo.cal_path(index_a, index_b)
@@ -26,27 +52,35 @@ def s2_sim_tool(num, ports, used_ports, neighour_level):
                     data['largest'] = length
             else:
                 data['raw'][length] += 1  # create a new bin
+
     for key, value in data['raw'].items():
         sum += key*value
     data['avg'] = sum/data['connections']
-    data['10p'] = helper_find_percentile(data, 10)
-    data['90p'] = helper_find_percentile(data, 90)
+    data['10p'] = helper_find_percentile(data['raw'], data['connections'], 10)
+    data['90p'] = helper_find_percentile(data['raw'], data['connections'], 90)
     return data
 
 
 def s2_sim_1():
-    result = s2_sim_tool(250, 4, 4, 2)
+    result = helper_s2_sim(250, 4, 4, 2)
     print('The average path length is', result['avg'])
     print('The 10th percentile of the data is', result['10p'])
     print('The 90th percentile of the data is', result['90p'])
     print('The largest routing path length is', result['largest'])
-    boundary = min(13, result['largest'])
-    x = [i for i in range(1, boundary)]
+    boundary = min(12, result['largest'])
+    x = [i for i in range(1, boundary+1)]
     y = []
-    for i in range(1, boundary):
-        y.append(result['raw'][i]/result['connections'])
+
+    for i in range(1, boundary+1):
+        try:
+            y.append(result['raw'][i]/result['connections'])
+        except KeyError:
+            y.append(0)
+            print('Just a blank area, don\'t worrry')
     plt.plot(x, y)
-    plt.title('Average path length - '+str(result['avg']))
+    plt.title('PDF (250-node, 8 ports, 2 hops storation)')
+    plt.ylabel('Percentage')
+    plt.xlabel('Routing Path Length (Average: '+str(result['avg'])+')')
     plt.show()
 
 
@@ -55,8 +89,9 @@ def s2_sim_2():
     y1 = []
     y2 = []
     y3 = []
+
     for scales in range(50, 501, 50):
-        result = s2_sim_tool(scales, 4, 4, 2)
+        result = helper_s2_sim(scales, 4, 4, 2)
         x.append(scales)
         y1.append(result['avg'])
         y2.append(result['10p'])
@@ -68,16 +103,41 @@ def s2_sim_2():
     ax.legend(loc='upper left', shadow=True)
     plt.title('Routing Path Length vs. Scale')
     plt.ylabel('Average Routing Path Length')
-    plt.xlabel('Number of Nodes')
+    plt.xlabel('Node Scale')
     plt.show()
 
 
 def s2_sim_3():
-    for hops in range(3):
-        result = s2_sim_tool(250, 4, 4, hops)
-        plt.hist(result['raw'], 50)
-        plt.title('Average path length - '+str(result['avg']))
-        plt.show()
+    x = [i for i in range(1, 11)]
+    result1 = helper_s2_sim(250, 4, 4, 1)
+    result2 = helper_s2_sim(250, 4, 4, 2)
+    result3 = helper_s2_sim(250, 4, 4, 3)
+    y1 = []
+    y2 = []
+    y3 = []
+
+    for i in range(1, 11):
+        try:
+            y1.append(result1['raw'][i]/result1['connections'])
+        except KeyError:
+            y1.append(0)
+        try:
+            y2.append(result2['raw'][i]/result2['connections'])
+        except KeyError:
+            y2.append(0)
+        try:
+            y3.append(result3['raw'][i]/result3['connections'])
+        except KeyError:
+            y3.append(0)
+    fig, ax = plt.subplots()
+    ax.plot(x, y1, 'k', label='Stored 1 hop')
+    ax.plot(x, y2, 'k--', label='Stored 2 hops')
+    ax.plot(x, y3, 'k:', label='Stored 3 hops')
+    ax.legend(loc='upper right', shadow=True)
+    plt.title('PDF - Routing Path Length Distribution vs. storation hops')
+    plt.ylabel('Percentage')
+    plt.xlabel('Routing Path Length')
+    plt.show()
 
 
 def s2_sim_4():
@@ -85,8 +145,9 @@ def s2_sim_4():
     y1 = []
     y2 = []
     y3 = []
+
     for sp in range(2, 6):
-        result = s2_sim_tool(250, sp, sp, 2)
+        result = helper_s2_sim(250, sp, sp, 2)
         x.append(sp)
         y1.append(result['avg'])
         y2.append(result['10p'])
@@ -95,10 +156,10 @@ def s2_sim_4():
     ax.plot(x, y1, 'k', label='Average')
     ax.plot(x, y2, 'k--', label='10th percentile')
     ax.plot(x, y3, 'k:', label='90th percentile')
-    ax.legend(loc='upper left', shadow=True)
-    plt.title('Routing Path Length vs. Scale')
+    ax.legend(loc='upper right', shadow=True)
+    plt.title('Routing Path Length vs. #Virtual Spaces')
     plt.ylabel('Average Routing Path Length')
-    plt.xlabel('Number of Nodes')
+    plt.xlabel('#Virtual Spaces')
     plt.show()
 
 
@@ -106,8 +167,36 @@ def s2_sim_5():
     pass
 
 
+def helper_chord_sim(node_scale, query_times=5):
+    data = {'avg': None, 'raw': {}, '90p': None, '10p': None, 'largest': 0}
+    data['query_times'] = node_scale*query_times
+    sum = 0
+    key_scale = 100*node_scale
+    chain = [ChordNode(rand_string(8))]  # First Node
+    chain += [ChordNode(rand_string(), chain[0]) for i in range(node_scale)]
+    stabilize_all(chain)
+
+    file_pool = []
+    for i in key_scale:
+        file_pool.append[rand_string(10)]
+        chain[random.randint(1, node_scale)].add_Source(file_pool[-1])
+
+    for node in chain:
+        for i in query_times:
+            needed_file = file_pool[random.rand_int(0, key_scale)]
+            length = node.find_file(needed_file)
+            sum += length
+
+    data['avg'] = sum/data['query_times']
+    return data
+
+
 def chord_sim_1():
     pass
 
 
-s2_sim_1()
+s2_sim_4()
+
+
+# BUG NOTES
+# 1. when there are two unconnected free ports, the simulation may fail
