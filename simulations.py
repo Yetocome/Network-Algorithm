@@ -7,19 +7,30 @@ import matplotlib.pyplot as plt
 import math
 
 
+def helper_find_percentile(data, percentile):
+    pass
+
+
 def s2_sim_tool(num, ports, used_ports, neighour_level):
-    data = {'avg': None, 'raw_data': [], '90p': None, '10p': None}
+    data = {'avg': None, 'raw': {}, '90p': None, '10p': None, 'largest': 0}
     topo = S2Topo(num, ports, used_ports, neighour_level)
-    connections = num*(num-1)/2
+    data['connections'] = num*(num-1)/2
     sum = 0
     for index_a in range(num):
         for index_b in range(index_a+1, num):
             length = topo.cal_path(index_a, index_b)
-            sum += length
-            data['raw_data'].append(length)
-    data['avg'] = sum/connections
-    data['10p'] = data['raw_data'][math.ceil(0.1*connections)-1]
-    data['90p'] = data['raw_data'][math.ceil(0.9*connections)-1]
+            if data['raw'].get(length) is None:
+                print('New length found:', length)
+                data['raw'][length] = 1
+                if length > data['largest']:
+                    data['largest'] = length
+            else:
+                data['raw'][length] += 1  # create a new bin
+    for key, value in data['raw'].items():
+        sum += key*value
+    data['avg'] = sum/data['connections']
+    data['10p'] = helper_find_percentile(data, 10)
+    data['90p'] = helper_find_percentile(data, 90)
     return data
 
 
@@ -28,7 +39,13 @@ def s2_sim_1():
     print('The average path length is', result['avg'])
     print('The 10th percentile of the data is', result['10p'])
     print('The 90th percentile of the data is', result['90p'])
-    plt.hist(result['raw_data'], 50)
+    print('The largest routing path length is', result['largest'])
+    boundary = min(13, result['largest'])
+    x = [i for i in range(1, boundary)]
+    y = []
+    for i in range(1, boundary):
+        y.append(result['raw'][i]/result['connections'])
+    plt.plot(x, y)
     plt.title('Average path length - '+str(result['avg']))
     plt.show()
 
@@ -50,15 +67,15 @@ def s2_sim_2():
     ax.plot(x, y3, 'k:', label='90th percentile')
     ax.legend(loc='upper left', shadow=True)
     plt.title('Routing Path Length vs. Scale')
-    plt.xlabel('Average Routing Path Length')
-    plt.ylabel('Number of Nodes')
+    plt.ylabel('Average Routing Path Length')
+    plt.xlabel('Number of Nodes')
     plt.show()
 
 
 def s2_sim_3():
     for hops in range(3):
         result = s2_sim_tool(250, 4, 4, hops)
-        plt.hist(result['raw_data'], 50)
+        plt.hist(result['raw'], 50)
         plt.title('Average path length - '+str(result['avg']))
         plt.show()
 
@@ -80,8 +97,8 @@ def s2_sim_4():
     ax.plot(x, y3, 'k:', label='90th percentile')
     ax.legend(loc='upper left', shadow=True)
     plt.title('Routing Path Length vs. Scale')
-    plt.xlabel('Average Routing Path Length')
-    plt.ylabel('Number of Nodes')
+    plt.ylabel('Average Routing Path Length')
+    plt.xlabel('Number of Nodes')
     plt.show()
 
 
@@ -89,4 +106,8 @@ def s2_sim_5():
     pass
 
 
-s2_sim_2()
+def chord_sim_1():
+    pass
+
+
+s2_sim_1()

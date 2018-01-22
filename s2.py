@@ -145,7 +145,6 @@ class S2Node(object):
                    self.cal_MCD(pkt.dst_coordinates):
                     V.append(neighbour)
             return V[self.__cal_hash(pkt)].forwarding(pkt)
-        pkt.path_dis += 1
         if pkt.path_dis > 255:
             raise Exception('Possible loop routing')
         # recursive fowarding, this is the exit condition
@@ -153,6 +152,7 @@ class S2Node(object):
             return pkt.path_dis  # Successfully find the destination
         # assure that the forwarding is loop-free, otherwise it won't end
         else:
+            pkt.path_dis += 1  # add one hop count in tha packet
             least_mcds = []
             for level, neighbours in enumerate(self.stored_neighbors):
                 mcds = []

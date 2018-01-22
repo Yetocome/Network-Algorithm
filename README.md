@@ -32,9 +32,9 @@ Routing Path Length:
 
 * Experiment 3 - when stored hops scales
 
-* Experiment 4 - when used spaces scales
+* Experiment 4 - when available spaces scales
 
-* Experiment 5 - when available spaces scales
+* Experiment 5 - when used spaces scales
 
 Routing Tables:
 
