@@ -13,16 +13,16 @@ Space Shuffle provides a new solution for the architectures of data center netwo
 
 * Experiment 1 - fixed condition
 
-![Figure 1](https://github.com/Yetocome/Networking-Algorithm/blob/master/Figure_1.png)
+![Figure 1](https://github.com/Yetocome/Networking-Algorithm/blob/master/figures/Figure_1.png)
 * Experiment 2 - when node number scales
 
-![Figure 2](https://github.com/Yetocome/Networking-Algorithm/blob/master/Figure_2.png)
+![Figure 2](https://github.com/Yetocome/Networking-Algorithm/blob/master/figures/Figure_2.png)
 * Experiment 3 - when stored hops scales
 
-![Figure 3](https://github.com/Yetocome/Networking-Algorithm/blob/master/Figure_3.png)
+![Figure 3](https://github.com/Yetocome/Networking-Algorithm/blob/master/figures/Figure_3.png)
 * Experiment 4 - when available spaces scales
 
-![Figure 4](https://github.com/Yetocome/Networking-Algorithm/blob/master/Figure_4.png)
+![Figure 4](https://github.com/Yetocome/Networking-Algorithm/blob/master/figures/Figure_4.png)
 * Experiment 5 - when used spaces scales
 
 
@@ -36,10 +36,10 @@ Chord protocol is one of the most famous P2P protocols.
 
 * Experiment 1 - fixed condition
 
-![Figure 5](https://github.com/Yetocome/Networking-Algorithm/blob/master/Figure_5.png)
+![Figure 5](https://github.com/Yetocome/Networking-Algorithm/blob/master/figures/Figure_5.png)
 * Experiment 2 - when node number scales
 
-![Figure 6](https://github.com/Yetocome/Networking-Algorithm/blob/master/Figure_6.png)
+![Figure 6](https://github.com/Yetocome/Networking-Algorithm/blob/master/figures/Figure_6.png)
 
 We can see that the curve is not so smooth. That's because the node ID is determined randomly in my simulations, which may lead a quite imbalanced assignment results. Obviously, a more balanced assignment will decrease the average routing path effectively.
 
@@ -59,7 +59,7 @@ Chord is a protocol at application layer while S2 is at network year. But this w
 
 As for routing efficiency, they both provide a decent performance. Their average routing length paths scale logarithmically with nodes scaling. From the simulation results (Fig. 1 and Fig. 5), we can find that S2 performs better than chord in the 250 node-topology case. Intuitively, S2 node can find the least-cost path quickly from different virtual spaces it's in.
 
-The size of the finger/routing tables of them are fixed. Chord maintains a linear tables which is a set of pointers and its size is log2(size of name space). S2 maintains a set of vectors, which are the coordinates of neighbor nodes in different spaces. The size of this table scales exponentially when the stored hops scales. The table structure and search efficiency of Chord are much better. Chord was designed so because the node leaves and node joins occur frequently in P2P scenario. While in data center, the use case of S2, the topology is much more stable, so its complexity is acceptable.
+The size of the finger/routing tables of them are fixed. Chord maintains a linear tables which is a set of pointers and its size is log2(size of name space). S2 maintains a set of vectors, which are the coordinates of neighbor nodes in different spaces. The size of this table scales exponentially when the stored hops scales. The search efficiency of Chord are much better. Chord was designed so because the node leaves and node joins occur frequently in P2P scenario. While in data center, the use case of S2, the topology is much more stable, so its complexity of tables is acceptable.
 
 ### _Reference_
 [1] Yu, Y., & Qian, C. (2016). Space Shuffle: A Scalable, Flexible, and High-Performance Data Center Network. IEEE Transactions on Parallel and Distributed Systems, 27(11), 3351–3365. https://doi.org/10.1109/tpds.2016.2533618
