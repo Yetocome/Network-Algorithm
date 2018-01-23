@@ -133,9 +133,9 @@ def s2_sim_3():
         except KeyError:
             y3.append(0)
     fig, ax = plt.subplots()
-    ax.plot(x, y1, 'k', label='Stored 1 hop')
-    ax.plot(x, y2, 'k--', label='Stored 2 hops')
-    ax.plot(x, y3, 'k:', label='Stored 3 hops')
+    ax.plot(x, y1, 'k', label='Stored 1 hop (Avg:'+str(result1['avg'])+')')
+    ax.plot(x, y2, 'k--', label='Stored 2 hops (Avg:'+str(result2['avg'])+')')
+    ax.plot(x, y3, 'k:', label='Stored 3 hops (Avg:'+str(result3['avg'])+')')
     ax.legend(loc='upper right', shadow=True)
     plt.title('PDF - Routing Path Length Distribution vs. storation hops')
     plt.ylabel('Percentage')
@@ -242,8 +242,10 @@ def chord_sim_2():
     plt.xlabel('Node Scale')
     plt.show()
 
+def chord_sim_3():
+    pass
 
-chord_sim_1()
+s2_sim_3()
 
 # BUG NOTES
 # 1. when there are two unconnected free ports, the simulation may fail

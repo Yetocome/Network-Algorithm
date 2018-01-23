@@ -49,13 +49,14 @@ class ChordNode(object):
             ChordNodeInfo: 节点的IP和端口信息
             FNode: 选择一个认识的节点
         """
-        super(ChordNode, self).__init__()
+        super(ChordNode, self).__init__(M=160)
         self.NInfo = ChordNodeInfo
         self.NID = my_hash(ChordNodeInfo)
         self.predecessor = None
         self.preSource = {}  # File will be saved in this map
         self.FingerTable = {}
         self.last_request_path = 0
+        self.M = M
 
         # Init Self and Neighbour
         if FNode is None:
