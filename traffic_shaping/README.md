@@ -1,7 +1,9 @@
 ## Naive Benchmark to Linux Traffic Shaping
 
 ### Test Environment:
+
 Sender: Ubuntu 16.04, kernel 4.4.0, x86_64
+
 Receiver: Ubuntu 17.10, kernel 4.18.0-rc4+, x86_64
 
 ### Benchmark tools:
@@ -38,4 +40,5 @@ Receiver: Ubuntu 17.10, kernel 4.18.0-rc4+, x86_64
 
 ### References
 [1] https://www.linuxjournal.com/content/july-2013-issue-linux-journal-networking
+
 [2] http://www.tldp.org/en/Traffic-Control-HOWTO/

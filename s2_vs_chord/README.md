@@ -13,16 +13,16 @@ Space Shuffle provides a new solution for the architectures of data center netwo
 
 * Experiment 1 - fixed condition
 
-![Figure 1](https://github.com/Yetocome/Networking-Algorithm/blob/master/figures/Figure_1.png)
+![Figure 1](https://github.com/mhxie/Networking-Algorithm/blob/master/s2_vs_chord/figures/Figure_1.png)
 * Experiment 2 - when node number scales
 
-![Figure 2](https://github.com/Yetocome/Networking-Algorithm/blob/master/figures/Figure_2.png)
+![Figure 2](https://github.com/mhxie/Networking-Algorithm/blob/master/s2_vs_chord/figures/Figure_2.png)
 * Experiment 3 - when stored hops scales
 
-![Figure 3](https://github.com/Yetocome/Networking-Algorithm/blob/master/figures/Figure_3.png)
+![Figure 3](https://github.com/mhxie/Networking-Algorithm/blob/master/s2_vs_chord/figures/Figure_3.png)
 * Experiment 4 - when available spaces scales
 
-![Figure 4](https://github.com/Yetocome/Networking-Algorithm/blob/master/figures/Figure_4.png)
+![Figure 4](https://github.com/mhxie/Networking-Algorithm/blob/master/s2_vs_chord/figures/Figure_4.png)
 * Experiment 5 - when used spaces scales
 
 
@@ -36,10 +36,10 @@ Chord protocol is one of the most famous P2P protocols.
 
 * Experiment 1 - fixed condition
 
-![Figure 5](https://github.com/Yetocome/Networking-Algorithm/blob/master/figures/Figure_5.png)
+![Figure 5](https://github.com/mhxie/Networking-Algorithm/blob/master/s2_vs_chord/figures/Figure_5.png)
 * Experiment 2 - when node number scales
 
-![Figure 6](https://github.com/Yetocome/Networking-Algorithm/blob/master/figures/Figure_6.png)
+![Figure 6](https://github.com/mhxie/Networking-Algorithm/blob/master/s2_vs_chord/figures/Figure_6.png)
 
 We can see that the curve is not so smooth. That's because the node ID is determined randomly in my simulations, which may lead a quite imbalanced assignment results. Obviously, a more balanced assignment will decrease the average routing path effectively.
 
