@@ -1,0 +1,6 @@
+[submodule "tools/neper"]
+	path = tools/neper
+	url = https://github.com/google/neper.git
+[submodule "tools/iperf"]
+	path = tools/iperf
+	url = https://github.com/esnet/iperf.git

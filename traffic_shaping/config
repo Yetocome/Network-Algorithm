@@ -1,0 +1,50 @@
+#  tc uses the following units when passed as a parameter.
+#    kbps: Kilobytes per second
+#    mbps: Megabytes per second
+#    kbit: Kilobits per second
+#    mbit: Megabits per second
+#    bps: Bytes per second
+#  Amounts of data can be specified in:
+#    kb or k: Kilobytes
+#    mb or m: Megabytes
+#    mbit: Megabits
+#    kbit: Kilobits
+
+
+# Name of the traffic control command.
+TC=/sbin/tc
+
+# Rate to throttle to
+RATE=0.5mbit
+
+# Peak rate to allow
+PEAKRATE=1mbit
+
+# Interface to shape
+IF=enp0s31f6
+
+# Average to delay packets by
+LATENCY=60ms
+
+# Jitter value for packet delay
+# Packets will be delayed by $LATENCY +/- $JITTER
+JITTER=10ms
+
+# Interval in seconds for queue algorithm perturbation.
+PTB=10
+
+# Amount of bytes a flow is allowed to dequeue during a round of the round robin process.
+QUANTUM=$MTU
+
+
+# HTB rate parameters
+HRATE_0=6mbit
+HRATE_1=5mbit
+HRATE_2=3mbit
+HRATE_3=1kbit
+
+# Ceil
+CEIL=6mbit
+
+# Burst rate
+BURST=15k
