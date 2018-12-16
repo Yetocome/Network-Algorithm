@@ -1,34 +1,35 @@
 #  tc uses the following units when passed as a parameter.
 #    kbps: Kilobytes per second
 #    mbps: Megabytes per second
+#    gbps: Gigabits per second
 #    kbit: Kilobits per second
 #    mbit: Megabits per second
+#    gbit: Gigabits per second
 #    bps: Bytes per second
 #  Amounts of data can be specified in:
 #    kb or k: Kilobytes
 #    mb or m: Megabytes
-#    mbit: Megabits
-#    kbit: Kilobits
+#    gb or g: Gigabytes
 
 
 # Name of the traffic control command.
 TC=/sbin/tc
 
 # Rate to throttle to
-RATE=0.5mbit
+RATE=50gbit
 
 # Peak rate to allow
-PEAKRATE=1mbit
+PEAKRATE=100gbit
 
 # Interface to shape
-IF=enp0s31f6
+IF=enp1s0np0
 
 # Average to delay packets by
-LATENCY=60ms
+LATENCY=1ms
 
 # Jitter value for packet delay
 # Packets will be delayed by $LATENCY +/- $JITTER
-JITTER=10ms
+JITTER=0.1ms
 
 # Interval in seconds for queue algorithm perturbation.
 PTB=10
@@ -38,13 +39,23 @@ QUANTUM=$MTU
 
 
 # HTB rate parameters
-HRATE_0=6mbit
-HRATE_1=5mbit
-HRATE_2=3mbit
-HRATE_3=1kbit
+HRATE_0=60gbit
+HRATE_1=50gbit
+HRATE_2=30gbit
+HRATE_3=1mbit
 
 # Ceil
 CEIL=6mbit
 
-# Burst rate
-BURST=15k
+# RED: Used for determining how fast the average queue size is influenced by the real queue size.
+# Larger values make the calculation more sluggish, allowing longer bursts of traffic before
+# marking starts. Real life experiments support the following guideline: (min+min+max)/(3*avpkt). 
+BURST=9217
+
+# RED Hard limit on the real (not average) queue size in bytes. Further packets are dropped. Should be set higher than
+# max+burst. It is advised to set this a few times higher than max.
+LIMIT=1mbit
+MAX=216kbit
+MIN=72kbit
+BW=10mbit
+AVGPKT=1

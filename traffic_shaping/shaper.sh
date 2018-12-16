@@ -25,15 +25,15 @@ source config
 
 help() {
     echo "Usage: start|stop|restart|show"
-    echo "start tbf"
+    echo "e.g. start tbf"
 }
 
 start() {
-    op=$1
-    case $op in
+    OP=$1
+    case $OP in
 
     "tbf")
-        $TC qdisc add dev $IF root handle 1:0 tbf rate $RATE burst 5kb latency 60ms peakrate $PEAKRATE mtu 2000
+        $TC qdisc add dev $IF root handle 1:0 tbf rate $RATE burst $BURST latency $LATENCY peakrate $PEAKRATE mtu 2000
         $TC qdisc add dev $IF parent 1:1 handle 10: netem delay $LATENCY $JITTER
     ;;
 
@@ -48,7 +48,13 @@ start() {
         $TC qdisc add dev $IF parent 1:3 handle 30: sfq
     ;;
 
+    "red")
+        $TC qdisc add dev $IF parent 1:1 handle 10: red limit $LIMIT min $MIN max $MAX avpkt $AVGPKT burst $BURST ecn adaptive bandwidth $BW
+    ;;
+
     "htb")
+        echo "please, this function is not ready"
+        exit 0
         $TC qdisc add dev $IF root handle 1: htb default 30 
         $TC class add dev $IF parent 1: classid 1:1 htb rate $HRATE_0 burst $BURST
         $TC class add dev $IF parent 1:1 classid 1:10 htb rate $HRATE_1 burst $BURST
@@ -73,9 +79,26 @@ start() {
 }
 
 stop() {
-    # FIXME: cannot clean algorithms other than tbf
-    $TC qdisc del dev $IF root
-    $TC qdisc del dev $IF parent 1:1
+    OP=$1
+    case $OP in
+
+    "tbf")
+        $TC qdisc del dev $IF root
+        $TC qdisc del dev $IF parent 1:1
+    ;;
+    "sfq")
+        $TC qdisc del dev $IF root
+    ;;
+    "prio")
+        echo "FIXME: no implementation yet"
+    ;;
+    "htb")
+	echo "FIXME: no implementation yet"
+    ;;
+    *)
+        echo "Did you run start before?"
+    ;;
+    esac
 }
 
 restart() {
@@ -100,7 +123,7 @@ echo "done"
 stop)
 
 echo -n "Stopping bandwidth shaping: "
-stop
+stop $2
 echo "done"
 ;;
 
